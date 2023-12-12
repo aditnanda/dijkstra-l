@@ -545,12 +545,15 @@ def main():
             const distance = [];
             const visited = [];
             const parent = [];
+            let allPaths = [];
+            let dijkstraSteps = [];
 
             const ver_edge = getDataFromCanvas();
             const nodes = ver_edge.nodes;
             const edges = ver_edge.edges;
 
             if (nodes.length === 0 || edges.length === 0) {
+                showModal('Tidak ada vertex atau edge yang tersedia. Silakan tambahkan vertex dan edge terlebih dahulu.');
                 return;
             }
 
@@ -572,6 +575,34 @@ def main():
 
             distance[startNode] = 0;
 
+            function findAllPaths(currentNode, currentPath, currentPathValue) {
+                visited[currentNode] = true;
+                currentPath.push(currentNode);
+
+                if (currentNode === endNode) {
+                    allPaths.push({
+                        path: [...currentPath],
+                        totalValue: currentPathValue
+                    });
+                } else {
+                    for (let v = 0; v < nodes.length; v++) {
+                        if (!visited[v] && edges.some(edge => (edge.source === currentNode && edge.target === v) || (edge.source === v && edge.target === currentNode))) {
+                            const edgeIndex = edges.findIndex(edge => (edge.source === currentNode && edge.target === v) || (edge.source === v && edge.target === currentNode));
+                            const edgeValue = edges[edgeIndex].weight;
+
+                            findAllPaths(v, currentPath, currentPathValue + edgeValue);
+                        }
+                    }
+                }
+
+                visited[currentNode] = false;
+                currentPath.pop();
+            }
+
+            findAllPaths(startNode, [], 0);
+
+            displayPathsAndTotalValues(allPaths);
+
             for (let count = 0; count < nodes.length - 1; count++) {
                 let u = -1;
                 for (let i = 0; i < nodes.length; i++) {
@@ -579,12 +610,12 @@ def main():
                         u = i;
                     }
                 }
-        
+
                 visited[u] = true;
-        
+
                 for (let v = 0; v < nodes.length; v++) {
-                    if (!visited[v] && edges.some(edge => edge.source === u && edge.target === v)) {
-                        const edgeIndex = edges.findIndex(edge => edge.source === u && edge.target === v);
+                    if (!visited[v] && edges.some(edge => (edge.source === u && edge.target === v) || (edge.source === v && edge.target === u))) {
+                        const edgeIndex = edges.findIndex(edge => (edge.source === u && edge.target === v) || (edge.source === v && edge.target === u));
                         const weight = edges[edgeIndex].weight;
                         if (distance[u] !== INF && distance[u] + weight < distance[v]) {
                             distance[v] = distance[u] + weight;
@@ -592,7 +623,6 @@ def main():
                         }
                     }
                 }
-
             }
 
             // Menyorot jalur terpendek pada tampilan graf
@@ -604,7 +634,7 @@ def main():
             path.reverse();
 
             // Highlight the shortest path by changing the color of the lines on that path
-            ctx.strokeStyle = 'blue';
+            ctx.strokeStyle = 'red';
             ctx.lineWidth = 3;
             for (let k = 0; k < path.length - 1; k++) {
                 const node1 = path[k];
@@ -623,7 +653,36 @@ def main():
             }
 
 
+        }
 
+        function displayPathsAndTotalValues(paths) {
+            outTemp = [];
+            paths.forEach((path, index) => {
+                outTemp.push({
+                    'path' : `${path.path.map(node => node).join(' -> ')}</br>Nilai = ${path.totalValue}</br></br>`,
+                    'edge_value' : path.totalValue
+                })
+            });
+            let smallestEdgeValue = Infinity;
+            let objectWithSmallestEdgeValue = null;
+
+            for (let i = 0; i < outTemp.length; i++) {
+                if (outTemp[i].edge_value < smallestEdgeValue) {
+                    smallestEdgeValue = outTemp[i].edge_value;
+                    objectWithSmallestEdgeValue = outTemp[i];
+                }
+            }
+
+            console.log('Object dengan edge_value terkecil:', objectWithSmallestEdgeValue);
+            console.log('Log PerhitunganL', outTemp);
+
+            try{
+                pywebview.api.sendEdgeValue({
+                    hasil:objectWithSmallestEdgeValue.path
+                });
+            }catch(e){
+            
+            }
         }
 
         function getDataFromCanvas() {
