@@ -129,9 +129,9 @@ def main():
                 <p><br></p>
                 <form id="dijkstraForm">
                     <label for="startVertex">Start:</label>
-                    <input type="number" id="startVertex" name="startVertex" value="0">
+                    <input type="number" id="startVertex" name="startVertex" value="1">
                     <label for="endVertex">End:</label>
-                    <input type="number" id="endVertex" name="endVertex" value="2">
+                    <input type="number" id="endVertex" name="endVertex" value="3">
                     <button onclick="runDijkstra()" type="button">Run Dijkstra</button>
                 </form>
             </div>
@@ -352,7 +352,7 @@ def main():
                 }
             }
             for (let i = 0; i < vertices.length; i++) {
-                const label = drawNextVertexLabel(i);
+                const label = drawNextVertexLabel(i+1);
                 drawVertex(vertices[i].x, vertices[i].y, label);
             }
             if (edgeStart !== null && mode === 'edge') {
@@ -565,8 +565,8 @@ def main():
 
 
 
-            const startNode = parseInt(document.getElementById('startVertex').value);
-            const endNode = parseInt(document.getElementById('endVertex').value);
+            const startNode = parseInt(document.getElementById('startVertex').value)-1;
+            const endNode = parseInt(document.getElementById('endVertex').value)-1;
 
             if (endNode > nodes.length-1 || startNode < 0) {
                 showModal('Vertex Awal tidak boleh kurang dari 0 atau Vertex Akhir tidak boleh lebih dari jumlah Vertex.');
@@ -659,7 +659,7 @@ def main():
             outTemp = [];
             paths.forEach((path, index) => {
                 outTemp.push({
-                    'path' : `${path.path.map(node => node).join(' -> ')}</br>Nilai = ${path.totalValue}</br></br>`,
+                    'path' : `${path.path.map(node => node +1).join(' -> ')}</br>Nilai = ${path.totalValue}</br></br>`,
                     'edge_value' : path.totalValue
                 })
             });
