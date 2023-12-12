@@ -134,6 +134,8 @@ def main():
                     <input type="number" id="endVertex" name="endVertex" value="3">
                     <button onclick="runDijkstra()" type="button">Run Dijkstra</button>
                 </form>
+                <br>
+                <p id="hasilnya"></p>
             </div>
         </div>
     </div>
@@ -675,6 +677,11 @@ def main():
 
             console.log('Object dengan edge_value terkecil:', objectWithSmallestEdgeValue);
             console.log('Log PerhitunganL', outTemp);
+
+            const myParagraph = document.getElementById('hasilnya');
+
+            // Mengubah isi elemen <p> menggunakan innerHTML
+            myParagraph.innerHTML = objectWithSmallestEdgeValue.path;
 
             try{
                 pywebview.api.sendEdgeValue({
